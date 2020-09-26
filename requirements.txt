@@ -1,0 +1,5 @@
+msrest
+azure-cognitiveservices-vision-face
+django
+djangorestframework
+cryptography
