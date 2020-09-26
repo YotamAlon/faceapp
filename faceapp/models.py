@@ -38,11 +38,10 @@ class FaceRequest(models.Model):
             if not image.similar_faces.count():
                 face_ids = self.image_set.exclude(face_id=image.face_id).values_list('face_id', flat=True)
                 same_face_face_ids = api.get_same_faces(image.face_id, face_ids)
-                image.similar_faces.add(*self.image_set.filter(face_id__in=same_face_face_ids))
+                image.similar_faces.add(image, *self.image_set.filter(face_id__in=same_face_face_ids))
 
-        most_common_face = sorted(self.image_set.all(), key=lambda x: x.similar_faces.count(), reverse=True)[0]
-        largest_common_face = sorted(list(most_common_face.similar_faces.all()) + [most_common_face],
-                                     key=lambda x: x.size, reverse=True)[0]
+        most_common_face = self.image_set.annotate(commonality=Count('similar_faces')).order_by('-commonality').first()
+        largest_common_face = most_common_face.similar_faces.order_by('-size').first()
 
         self.best_face = largest_common_face
         self.status = 'Done'
