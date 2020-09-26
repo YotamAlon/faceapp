@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Count
-from faceapp.face import api, TooManyFaces
+from faceapp.face import FaceAPI, TooManyFaces
 
 
 class FaceRequest(models.Model):
@@ -22,6 +22,8 @@ class FaceRequest(models.Model):
     def execute(self):
         self.status = 'Running'
         self.save()
+
+        api = FaceAPI()
 
         try:
             for image in self.image_set.all():

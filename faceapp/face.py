@@ -3,7 +3,7 @@ import time
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 
-KEY = os.environ['AZURE_KEY']
+KEY = os.environ.get('AZURE_KEY', None)
 ENDPOINT = 'https://face-show.cognitiveservices.azure.com/'
 
 
@@ -40,6 +40,3 @@ class FaceAPI(object):
     def get_same_faces(self, face_id, face_ids):
         similar_faces = self.find_similar(face_id, face_ids)
         return [similar_face.face_id for similar_face in similar_faces]
-
-
-api = FaceAPI()

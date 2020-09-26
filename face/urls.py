@@ -19,5 +19,5 @@ from faceapp.views import router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('face-api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
