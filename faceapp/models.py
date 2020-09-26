@@ -34,11 +34,17 @@ class FaceRequest(models.Model):
             self.error = str(e)
             self.save()
 
+        max_commonality = 0
         for image in self.image_set.all():
             if not image.similar_faces.count():
                 face_ids = self.image_set.exclude(face_id=image.face_id).values_list('face_id', flat=True)
                 same_face_face_ids = api.get_same_faces(image.face_id, face_ids)
+
+                max_commonality = max(max_commonality, 1 + len(same_face_face_ids))
                 image.similar_faces.add(image, *self.image_set.filter(face_id__in=same_face_face_ids))
+
+            if max_commonality > self.image_set.filter(similar_faces__isnull=True).count():
+                break
 
         most_common_face = self.image_set.annotate(commonality=Count('similar_faces')).order_by('-commonality').first()
         largest_common_face = most_common_face.similar_faces.order_by('-size').first()
@@ -53,4 +59,4 @@ class Image(models.Model):
     url = models.CharField(max_length=1024)
     face_id = models.CharField(max_length=64, null=True, blank=True)
     size = models.IntegerField(null=True, blank=True)
-    similar_faces = models.ManyToManyField('Image')
+    similar_faces = models.ManyToManyField('self', symmetrical=True)
